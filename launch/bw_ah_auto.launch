@@ -1,0 +1,14 @@
+<launch>
+  <node pkg="bw_ah_driver" type="bw_ah_auto_imu_node" name="bw_ah_auto_imu_node" output="screen">
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="baud" value="9600"/>
+    <param name="frame_id" value="imu_link"/>
+    <param name="topic" value="/imu/data"/>
+    <param name="debug" value="true"/>
+    <param name="mag_unit" value="gauss"/>
+    <!-- 协方差（未知可用 -1），或填对角近似：例如 0.01 表示 ~0.01 (rad^2) / (m^2 s^-4) -->
+    <param name="cov_orientation" value="-1"/>
+    <param name="cov_angular_velocity" value="-1"/>
+    <param name="cov_linear_acceleration" value="-1"/>
+  </node>
+</launch>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(bw_ros_driver)
+project(bw_ah_driver)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,12 +8,12 @@ project(bw_ros_driver)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
   roscpp
   rospy
-  sensor_msgs
+  serial
   std_msgs
-  std_srvs
+  tf2
+  tf2_geometry_msgs 
 )
 
 ## System dependencies are found with CMake's conventions
@@ -73,7 +73,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   geometry_msgs#   sensor_msgs#   std_msgs
+#   std_msgs
 # )
 
 ################################################
@@ -107,8 +107,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES bw_ros_driver
-#  CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs std_srvs
+#  LIBRARIES bw_ah_driver
+#  CATKIN_DEPENDS roscpp rospy serial std_msgs
 #  DEPENDS system_lib
 )
 
@@ -119,13 +119,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/bw_ros_driver.cpp
+#   src/${PROJECT_NAME}/bw_ah_driver.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -134,7 +135,11 @@ include_directories(
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(bw_device_node src/main.cpp)
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+
+add_executable(serial_probe src/serial_probe.cpp)
+add_executable(bw_ah_auto_imu_node src/bw_ah_auto_imu_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,7 +152,13 @@ add_executable(bw_device_node src/main.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(bw_device_node
+
+
+target_link_libraries(serial_probe 
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bw_ah_auto_imu_node 
   ${catkin_LIBRARIES}
 )
 
@@ -198,7 +209,7 @@ target_link_libraries(bw_device_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_bw_ros_driver.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_bw_ah_driver.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

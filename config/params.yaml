@@ -1,0 +1,8 @@
+port: "/dev/ttyUSB0"
+baud: 9600
+frame_id: "imu_link"
+topic: "/imu/data"
+debug: true
+cov_orientation: -1
+cov_angular_velocity: -1
+cov_linear_acceleration: -1

@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="bw_ros_driver" type="bw_device_node" name="bw_device_node" output="screen" />
-</launch>
