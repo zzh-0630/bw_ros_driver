@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "bw_ah_driver/bcd_utils.hpp"
+#include "bw_ros_driver/bcd_utils.hpp"
 
 namespace {
 int open_serial(const std::string& port, int baud) {
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
 
   std::string port = "/dev/ttyUSB0", frame_id = "imu_link", topic = "/imu/data";
   std::string mag_unit = "gauss";  // gauss | uT | tesla
-  int baud = 9600;
+  int baud = 115200;
   bool debug = true;
   double ori_cov = -1.0, gyr_cov = -1.0, acc_cov = -1.0;  // -1 表示未知
   pnh.param("port", port, port);
@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
   const double DEG2RAD = M_PI / 180.0;
   const double G2MS2 = 9.80665;
 
-  ros::Rate idle(1000);  // 高频 poll-read，实际输出频率由设备决定
+  ros::Rate idle(50);  
   while (ros::ok()) {
     uint8_t tmp[512];
     ssize_t n = read(fd, tmp, sizeof(tmp));

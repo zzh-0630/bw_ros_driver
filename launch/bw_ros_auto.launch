@@ -1,7 +1,7 @@
 <launch>
-  <node pkg="bw_ah_driver" type="bw_ah_auto_imu_node" name="bw_ah_auto_imu_node" output="screen">
+  <node pkg="bw_ros_driver" type="bw_node" name="bw_node" output="screen">
     <param name="port" value="/dev/ttyUSB0"/>
-    <param name="baud" value="9600"/>
+    <param name="baud" value="115200"/>
     <param name="frame_id" value="imu_link"/>
     <param name="topic" value="/imu/data"/>
     <param name="debug" value="true"/>
