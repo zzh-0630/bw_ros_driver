@@ -12,52 +12,7 @@
 #include <vector>
 
 #include "bw_ros_driver/bcd_utils.hpp"
-
-namespace {
-int open_serial(const std::string& port, int baud) {
-  int fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
-  if (fd < 0) {
-    perror("open");
-    return -1;
-  }
-  termios tio{};
-  tcgetattr(fd, &tio);
-  cfmakeraw(&tio);
-  speed_t sp = B9600;
-  switch (baud) {
-    case 115200:
-      sp = B115200;
-      break;
-    case 57600:
-      sp = B57600;
-      break;
-    case 38400:
-      sp = B38400;
-      break;
-    case 19200:
-      sp = B19200;
-      break;
-    case 9600:
-    default:
-      sp = B9600;
-      break;
-  }
-  cfsetispeed(&tio, sp);
-  cfsetospeed(&tio, sp);
-  tio.c_cflag |= (CLOCAL | CREAD | CS8);
-  tio.c_cflag &= ~(PARENB | CSTOPB | CRTSCTS);  // 8N1, 关闭硬件流控
-  tio.c_iflag &= ~(IXON | IXOFF | IXANY);       // 关闭软件流控
-  tio.c_cc[VMIN] = 0;                           // 非阻塞
-  tio.c_cc[VTIME] = 2;                          // 200ms 读超时
-  if (tcsetattr(fd, TCSANOW, &tio) != 0) {
-    perror("tcsetattr");
-    close(fd);
-    return -1;
-  }
-  tcflush(fd, TCIOFLUSH);
-  return fd;
-}
-}  // namespace
+#include "bw_ros_driver/serial_port.hpp"
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "bw_ah_auto_imu_node");
@@ -79,11 +34,13 @@ int main(int argc, char** argv) {
   pnh.param("cov_angular_velocity", gyr_cov, gyr_cov);
   pnh.param("cov_linear_acceleration", acc_cov, acc_cov);
 
-  int fd = open_serial(port, baud);
-  if (fd < 0) {
-    ROS_FATAL("Open %s failed", port.c_str());
+  bw::SerialPort serial_port(port, baud);
+  if (!serial_port.openSerial()) 
+  {
+    ROS_ERROR("Open %s failed", port.c_str());
     return 1;
   }
+
   ROS_INFO("Opened %s @ %d, publishing %s", port.c_str(), baud, topic.c_str());
 
   ros::Publisher pub = nh.advertise<sensor_msgs::Imu>(topic, 200);
@@ -103,7 +60,7 @@ int main(int argc, char** argv) {
   ros::Rate idle(50);  
   while (ros::ok()) {
     uint8_t tmp[512];
-    ssize_t n = read(fd, tmp, sizeof(tmp));
+    ssize_t n = serial_port.readSome(tmp, sizeof(tmp));
     if (n < 0 && errno != EAGAIN) {
       if (debug) ROS_WARN_THROTTLE(1.0, "read() error: %d", errno);
     }
@@ -350,6 +307,6 @@ int main(int argc, char** argv) {
     idle.sleep();
   }
 
-  close(fd);
+  serial_port.closeSerial();
   return 0;
 }
