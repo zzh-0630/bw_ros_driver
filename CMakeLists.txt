@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(bw_ah_driver)
+project(bw_ros_driver)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -137,9 +137,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-
-add_executable(serial_probe src/serial_probe.cpp)
-add_executable(bw_ah_auto_imu_node src/bw_ah_auto_imu_node.cpp)
+add_executable(bw_node src/bw_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,11 +152,7 @@ add_executable(bw_ah_auto_imu_node src/bw_ah_auto_imu_node.cpp)
 ## Specify libraries to link a library or executable target against
 
 
-target_link_libraries(serial_probe 
-  ${catkin_LIBRARIES}
-)
-
-target_link_libraries(bw_ah_auto_imu_node 
+target_link_libraries(bw_node 
   ${catkin_LIBRARIES}
 )
 
