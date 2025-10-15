@@ -137,8 +137,6 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-
-add_executable(serial_probe src/serial_probe.cpp)
 add_executable(bw_node src/bw_node.cpp)
 
 ## Rename C++ executable without prefix
@@ -153,10 +151,6 @@ add_executable(bw_node src/bw_node.cpp)
 
 ## Specify libraries to link a library or executable target against
 
-
-target_link_libraries(serial_probe 
-  ${catkin_LIBRARIES}
-)
 
 target_link_libraries(bw_node 
   ${catkin_LIBRARIES}
