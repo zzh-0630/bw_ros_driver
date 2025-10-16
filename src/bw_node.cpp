@@ -13,9 +13,11 @@
 
 #include "bw_ros_driver/bcd_utils.hpp"
 #include "bw_ros_driver/serial_port.hpp"
+#include "bw_ros_driver/bws_parser.hpp"
 
-int main(int argc, char** argv) {
-  ros::init(argc, argv, "bw_ah_auto_imu_node");
+int main(int argc, char** argv) 
+{
+  ros::init(argc, argv, "bw_ros_driver");
   ros::NodeHandle nh;        // 全局命名空间（便于发布到全局话题）
   ros::NodeHandle pnh("~");  // 私有参数
 
@@ -47,23 +49,31 @@ int main(int argc, char** argv) {
   ros::Publisher mag_pub =
       nh.advertise<sensor_msgs::MagneticField>("/imu/mag", 200);
 
-  std::vector<uint8_t> buf;
-  buf.reserve(256);
-  enum { WAIT_77, READ_LEN, READ_PAYLOAD } st = WAIT_77;
-  uint8_t need = 0;
-  uint64_t ok_cnt = 0, bad_cnt = 0;
+  // std::vector<uint8_t> buf;
+  // buf.reserve(256);
+
+  bw::BwsParser parser;
+
+  // enum { WAIT_77, READ_LEN, READ_PAYLOAD } st = WAIT_77;
+  // uint8_t need = 0;
+  // uint64_t ok_cnt = 0, bad_cnt = 0;
   ros::Time t0 = ros::Time::now();
 
   const double DEG2RAD = M_PI / 180.0;
   const double G2MS2 = 9.80665;
 
   ros::Rate idle(50);  
-  while (ros::ok()) {
+  while (ros::ok()) 
+  {
     uint8_t tmp[512];
     ssize_t n = serial_port.readSome(tmp, sizeof(tmp));
-    if (n < 0 && errno != EAGAIN) {
-      if (debug) ROS_WARN_THROTTLE(1.0, "read() error: %d", errno);
+    if (n < 0 && errno != EAGAIN) 
+    {
+      if (debug) 
+        ROS_WARN_THROTTLE(1.0, "read() error: %d", errno);
     }
+    parser.feed(tmp, n, buf);
+
     for (ssize_t i = 0; i < n; ++i) {
       uint8_t b = tmp[i];
       if (st == WAIT_77) {
@@ -79,6 +89,7 @@ int main(int argc, char** argv) {
       } else {
         buf.push_back(b);
         if (buf.size() == static_cast<size_t>(1 + need)) {
+
           // 完整帧
           uint8_t cs = sum8(&buf[1], need - 1);
           uint8_t chk = buf.back();
@@ -87,8 +98,7 @@ int main(int argc, char** argv) {
             uint8_t cmd = buf[3];
             const uint8_t* d = &buf[4];  // 数据域起始
             size_t left =
-                need -
-                4;  // 数据域字节数 = need - 4 （LEN, ADDR, CMD, DATA..., CHK）
+                need - 4;  // 数据域字节数 = need - 4 （LEN, ADDR, CMD, DATA..., CHK）
 
             sensor_msgs::Imu msg;
             bool publish = false;
@@ -170,6 +180,9 @@ int main(int argc, char** argv) {
                         "%+.6f]  (bad=%lu)",
                         hz, P, R, Y, Gx_dps, Gy_dps, Gz_dps, Ax_g, Ay_g, Az_g,
                         Mx, My, Mz, q0, q1, q2, q3, (unsigned long)bad_cnt);
+                    ROS_INFO("buf size=%zu need=%u",
+                             buf.size(),  // for debug
+                             need);       // for debug
                     last = now;
                   }
                 }
