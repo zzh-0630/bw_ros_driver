@@ -103,4 +103,4 @@ public:
   uint64_t bad() const { return bad_cnt_; }
 };
 
-} // namespace bw
+}

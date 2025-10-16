@@ -100,8 +100,7 @@ bool BwsParser::onFrame(DataSample& out)
       out.q3 = bcd4_q_to_double(d[48], d[49], d[50], d[51]);
       out.has_quat = true;
       return true;
-    } else 
-    {
+    } else {
       // 兼容旧/变体：尽量从前到后解析
       size_t off = 0;
       auto take3a = [&](double& v) 
