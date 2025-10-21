@@ -1,3 +1,4 @@
+# 目前未使用yaml配置参数，后续会添加
 port: "/dev/ttyUSB0"
 baud: 9600
 frame_id: "imu_link"
