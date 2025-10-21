@@ -9,7 +9,7 @@
 *  \section CodeCopyright Copyright Notice
 *  MIT License
 *
-*  Copyright (c) 2025 BW
+*  Copyright (C) 2025, BEWIS SENSING. All rights reserved.
 *
 *  Permission is hereby granted, free of charge, to any person obtaining a copy
 *  of this software and associated documentation files (the "Software"), to
@@ -37,7 +37,7 @@
 namespace bw
 {
 /*!
- * Class to manage a serial port.
+ * 串口管理类
  */
 class SerialPort
 {
@@ -48,19 +48,19 @@ private:
   int fd_;
 
   //---------------------------------------------------------------------//
-  //- Private  methods                                                  -//
+  //- 私函数                                                             -//
   //---------------------------------------------------------------------//
 
   /*!
-   * Configure the termios structure.
+   * 串口配置
    */
   bool configureTermios();
 
   /*!
-   * Map an integer baud rate to a speed_t value.
+   * 波特率映射
    *
-   * \param[in] baud Baud rate as an integer.
-   * \return Corresponding speed_t value, or B0 if unsupported.
+   * \param[in] baud 波特率值
+   * \return 对应的 speed_t 值
    */
   static speed_t mapBaud(int baud);
 
@@ -68,95 +68,91 @@ private:
 public:
 
   //---------------------------------------------------------------------//
-  //- Constructor                                                       -//
-  //---------------------------------------------------------------------//
+  //- 构造函数                                                          -//
+  //--------------------------------------------------------------------//
 
   /*!
-    * Default constructor.
+    * 默认构造函数。
     *
-    * \param[in] port Serial port name (e.g., "/dev/ttyUSB0").
-    * \param[in] baud Baud rate (e.g., 9600, 115200).
+    * \param[in] port 串口设备路径（例如 "/dev/ttyUSB0"）。
+    * \param[in] baud 波特率（例如 9600，115200）。
     */
   explicit SerialPort(std::string port = "/dev/ttyUSB0", int baud = 9600);
 
   /*!
-   * Destructor.
+   * 析构函数。
    */
   ~SerialPort();
 
   //---------------------------------------------------------------------//
-  //- Parameters                                                        -//
-  //---------------------------------------------------------------------//
-
-  //---------------------------------------------------------------------//
-  //- Operations                                                        -//
-  //---------------------------------------------------------------------//
+  //- 函数                                                              -//
+  //--------------------------------------------------------------------//
 
   /*!
-   * Open the serial port with the specified configuration.
+   * 打开串口。
    */
   bool openSerial();
 
   /*!
-   * Close the serial port.
+   * 关闭串口。
    */
   void closeSerial();
 
   /*!
-   * Reopen the serial port.
+   * 重新打开串口。
    */
   bool reOpenSerial();
 
   /*!
-   * Check if the serial port is open.
+   * 检查串口是否已打开。
    */
   bool isOpen() const { return fd_ >= 0; };
 
   /*!
-   * Get the file descriptor of the serial port.
+   * 获取串口文件描述符。
    *
-   * \return File descriptor, or -1 if not open.
+   * \return 文件描述符值，如果未打开则为 -1。
    */
   int fd() const { return fd_; };
 
   /*!
-   * Set the baud rate of the serial port.
+   * 设置串口波特率。
    *
-   * \param[in] baud Baud rate (e.g., 9600, 115200).
-   * \return True if successful, False otherwise.
+   * \param[in] baud 波特率值。
+   * \return 设置成功返回 true，否则返回 false。
    */
   bool setBaud(int baud);
 
   /*!
-   * Get the current baud rate of the serial port.
+   * 获取当前串口波特率。
    */
   int getBaud() const { return baud_; };
 
   /*!
-   * Set the current port name of the serial port.
+   * 设置串口设备路径。
    */
   void setPort(const std::string& p) { port_ = p; }
 
   /*!
-   * Get the current port name of the serial port.
+   * 获取串口设备路径。
    */
   const std::string& getPort() const { return port_; }
 
   /*!
-   * Write data to the serial port.
+   * 串口写入数据。
    *
-   * \param[in] data Data buffer to write.
-   * \param[in] len  Number of bytes to write.
-   * \return Number of bytes written, or -1 on error.
+   * \param[in] data 数据缓冲区指针。
+   * \param[in] len  数据长度。
+   * \return 写入的字节数，或在出错时返回 -1。
    */
   ssize_t writeAll(const uint8_t* data, size_t len);
 
   /*!
-   * Read data from the serial port.
+   * 串口读取数据。
    *
-   * \param[out] buf Buffer to store read data.
-   * \param[in] max  Maximum number of bytes to read.
-   * \return Number of bytes read, or -1 on error.
+   * \param[out] buf 数据缓冲区指针。
+   * \param[in] max  最大读取字节数。
+   * \return 读取的字节数，或在出错时返回 -1。
    */
   ssize_t readSome(uint8_t* buf, size_t max);
 

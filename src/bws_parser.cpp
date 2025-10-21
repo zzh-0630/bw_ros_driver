@@ -34,7 +34,7 @@ size_t BwsParser::feed(const uint8_t* data, size_t n,
     } else 
     {
       buf_.push_back(byte);
-      // read a full frame
+      // 判定完整帧
       if (buf_.size() == static_cast<size_t>(1 + need_)) 
       {
         uint8_t cs = sum8(&buf_[1], need_ - 1);
@@ -103,7 +103,7 @@ bool BwsParser::onFrame(DataSample& out)
       out.has_quat = true;
 
       return true;
-    }else if (left == 43) 
+    } else if (left == 43) 
     {
       // ROS_INFO("data length : 43");
       out.P = bcd3_angle_or_dps(d[0], d[1], d[2]);

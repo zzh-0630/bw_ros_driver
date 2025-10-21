@@ -11,7 +11,7 @@
 using bw::SerialPort;
 
 /*!
- * Class to manage a serial port.
+ * 串口管理类
  */
 
 SerialPort::SerialPort(std::string port, int baud):

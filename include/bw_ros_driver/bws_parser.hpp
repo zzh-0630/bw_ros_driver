@@ -9,7 +9,7 @@
  *  \section CodeCopyright Copyright Notice
  *  MIT License
  *
- *  Copyright (c) 2025 BW
+ *  Copyright (C) 2025, BEWIS SENSING. All rights reserved.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to
@@ -38,46 +38,46 @@ namespace bw
 {
 
 /*!
- * Parsed Data sample (units BEFORE ROS conversion):
- *  - Euler P/R/Y 
- *  - Angular rate
- *  - Acc
- *  - Mag 
- *  - Quaternion q0..q3 (w,x,y,z) 
+ * 解析数据样本
+ *  - 欧拉角 P/R/Y 
+ *  - 加速度
+ *  - 角速度
+ *  - 磁场 
+ *  - 四元数
  */
 struct DataSample
 {
   bool has_euler=false, has_acc=false, has_gyro=false, has_mag=false, has_quat=false;
-  double P=0,R=0,Y=0;                 // deg
-  double ax_g=0, ay_g=0, az_g=0;      // g
-  double gx_dps=0, gy_dps=0, gz_dps=0;// deg/s
-  double mx=0, my=0, mz=0;            // gauss/uT
-  double q0=1, q1=0, q2=0, q3=0;      // w,x,y,z
+  double P=0,R=0,Y=0;                 
+  double ax_g=0, ay_g=0, az_g=0;      
+  double gx_dps=0, gy_dps=0, gz_dps=0;
+  double mx=0, my=0, mz=0;            
+  double q0=1, q1=0, q2=0, q3=0;      
 };
 
 /*!
- * \brief Streaming parser: feed bytes → 0..N DataSample(s)
+ * \brief 解析 bwsensing 协议
  *
- * Frame format (auto-output):
+ * 数据帧格式（自动输出模式）
  *   0x77 | LEN | ADDR | CMD | DATA... | CHK
- * Checksum here is sum8 over [LEN..DATA] 
+ *   校验和从 LEN 开始，到 DATA 结束
  */
 class BwsParser
 {
 private:
 
   //---------------------------------------------------------------------//
-  //- Private variables                                                 -//
+  //- 私有变量                                                           -//
   //---------------------------------------------------------------------//
 
   enum State { WAIT_77, READ_LEN, READ_PAYLOAD };
   State st_ = WAIT_77;
   std::vector<uint8_t> buf_{}; 
-  uint8_t need_ = 0;                              //length
+  uint8_t need_ = 0;                              //长度
   uint64_t ok_cnt_ = 0, bad_cnt_ = 0;
 
   //---------------------------------------------------------------------//
-  //- Private  methods                                                  -//
+  //- 私有函数                                                           -//
   //---------------------------------------------------------------------//
 
   bool onFrame(DataSample& out);
@@ -85,7 +85,7 @@ private:
 public:
 
   //---------------------------------------------------------------------//
-  //- Constructor                                                       -//
+  //- 构造函数                                                           -//
   //---------------------------------------------------------------------//
   
   BwsParser();
@@ -93,8 +93,11 @@ public:
   void reset();
 
   /*!
-   * \brief Feed a chunk of bytes. Push parsed samples into 'out'.
-   * \return number of samples pushed
+   * \brief 输入数据进行解析
+   * \param[in] data 输入数据缓冲区
+   * \param[in] n 输入数据长度
+   * \param[out] out 解析后输出的数据样本列表
+   * \return 成功解析的数据样本数量
    */
   size_t feed(const uint8_t* data, size_t n, std::vector<DataSample>& out);
 
