@@ -1,5 +1,5 @@
 <launch>
   <node pkg="bw_ros_driver" type="bw_node" name="bw_node" output="screen">
-    <rosparam command="load" file="$(find bw_ros_driver)/config/params.yaml"/>
+    <rosparam command="load" file="$(find bw_ros_driver)/config/dmc_params.yaml"/>
   </node>
 </launch>

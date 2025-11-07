@@ -71,7 +71,7 @@ bool BwsParser::onFrame(DataSample& out)
   size_t left = len - 4;  // 数据域长度
 
   //同时读取角度，加计，角速度，磁力计，四元数
-  if (cmd == 0x59)
+  if (cmd == 0x59 || cmd == 0x60)
   {
     if (left == 52)
     {
