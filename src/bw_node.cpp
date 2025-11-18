@@ -14,6 +14,7 @@
 #include "bw_ros_driver/bcd_utils.hpp"
 #include "bw_ros_driver/serial_port.hpp"
 #include "bw_ros_driver/bws_parser.hpp"
+#include "bw_ros_driver/f3_float_parser.hpp"
 using bw::DataSample;
 using bw::SerialPort;
 using bw::BwsParser;
@@ -26,6 +27,7 @@ int main(int argc, char** argv)
 
   std::string port = "/dev/ttyUSB0", frame_id = "imu_link", topic = "/imu/data";
   std::string mag_unit = "gauss";  // gauss | uT | tesla
+  std::string protocol = "auto";
   int baud = 115200;
   bool debug = true;
   double ori_cov = -1.0, gyr_cov = -1.0, acc_cov = -1.0;  // -1 表示未知
@@ -38,6 +40,7 @@ int main(int argc, char** argv)
   pnh.param("cov_orientation", ori_cov, ori_cov);
   pnh.param("cov_angular_velocity", gyr_cov, gyr_cov);
   pnh.param("cov_linear_acceleration", acc_cov, acc_cov);
+  pnh.param("protocol", protocol, protocol);
 
   bw::SerialPort serial_port(port, baud);
   if (!serial_port.openSerial()) 
