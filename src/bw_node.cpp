@@ -14,7 +14,7 @@
 #include "bw_ros_driver/bcd_utils.hpp"
 #include "bw_ros_driver/serial_port.hpp"
 #include "bw_ros_driver/bws_parser.hpp"
-#include "bw_ros_driver/f3_float_parser.hpp"
+#include "bw_ros_driver/f3_parser.hpp"
 using bw::DataSample;
 using bw::SerialPort;
 using bw::BwsParser;

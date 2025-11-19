@@ -1,5 +1,5 @@
-port: "/dev/ttyACM0"
-baud: 115200
+port: "/dev/ttyUSB0"
+baud: 921600
 frame_id: "imu_link"
 topic: "/imu/data"
 debug: true
@@ -7,4 +7,4 @@ mag_unit: "gauss"
 cov_orientation: -1
 cov_angular_velocity: -1
 cov_linear_acceleration: -1
-protocol: f3_float  # protocol type: bws / f3_float
+protocol: f3  # protocol type: bws / f3_float

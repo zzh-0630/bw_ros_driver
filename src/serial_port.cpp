@@ -22,29 +22,70 @@ SerialPort::~SerialPort()
   closeSerial();
 }
 
-speed_t SerialPort::mapBaud(int baud)
+speed_t SerialPort::mapBaud(int baud) 
 {
-  switch (baud)
+  switch (baud) 
   {
-    case 115200:
-      return B115200;
-    case 57600:
-      return B57600;
-    case 38400:
-      return B38400;
-    case 19200:
-      return B19200;
     case 9600:
       return B9600;
+    case 19200:
+      return B19200;
+    case 38400:
+      return B38400;
+    case 57600:
+      return B57600;
+    case 115200:
+      return B115200;
+#ifdef B230400
+    case 230400:
+      return B230400;
+#endif
+#ifdef B460800
+    case 460800:
+      return B460800;
+#endif
+#ifdef B500000
+    case 500000:
+      return B500000;
+#endif
+#ifdef B576000
+    case 576000:
+      return B576000;
+#endif
+#ifdef B921600
+    case 921600:
+      return B921600;
+#endif
+#ifdef B1000000
+    case 1000000:
+      return B1000000;
+#endif
+#ifdef B1152000
+    case 1152000:
+      return B1152000;
+#endif
+#ifdef B1500000
+    case 1500000:
+      return B1500000;
+#endif
+#ifdef B2000000
+    case 2000000:
+      return B2000000;
+#endif
+#ifdef B3000000
+    case 3000000:
+      return B3000000;
+#endif
     default:
-      return B9600;
+      return B9600;  // 未覆盖到就退回低速，避免崩
   }
 }
 
 bool SerialPort::configureTermios()
 {
   termios tio{};
-  if (tcgetattr(fd_, &tio) != 0) {
+  if (tcgetattr(fd_, &tio) != 0) 
+  {
     std::perror("tcgetattr");
     return false;
   }
@@ -60,7 +101,8 @@ bool SerialPort::configureTermios()
   tio.c_cc[VMIN] = 0;                           // read non-blocking
   tio.c_cc[VTIME] = 2;                          // 200ms timeout
 
-  if (tcsetattr(fd_, TCSANOW, &tio) != 0) {
+  if (tcsetattr(fd_, TCSANOW, &tio) != 0) 
+  {
     std::perror("tcsetattr");
     return false;
   }
