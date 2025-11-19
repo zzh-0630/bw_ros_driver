@@ -1,5 +1,21 @@
-<launch>
-  <node pkg="bw_ros_driver" type="bw_node" name="bw_node" output="screen">
+<!-- <launch>
+  <node pkg="bw_ros_driver" type="bw_node_dmc" name="bw_node_dmc" output="screen">
     <rosparam command="load" file="$(find bw_ros_driver)/config/dmc_params.yaml"/>
+  </node>
+</launch> -->
+<launch>
+  <node pkg="bw_ros_driver" type="bw_node_dmc" name="bw_node_dmc" output="screen">
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="baud" value="921600"/>
+    <param name="frame_id" value="imu_link"/>
+    <param name="imu_topic" value="/imu/data_f3"/>
+    <param name="mag_topic" value="/imu/mag_f3"/>
+    <param name="mag_unit" value="gauss"/>
+    <param name="publish_rate" value="10"/>
+
+    <param name="debug" value="true"/>
+    <param name="cov_orientation" value="-1"/>
+    <param name="cov_angular_velocity" value="-1"/>
+    <param name="cov_linear_acceleration" value="-1"/>
   </node>
 </launch>
