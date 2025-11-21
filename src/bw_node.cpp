@@ -22,15 +22,16 @@ using bw::BwsParser;
 int main(int argc, char** argv) 
 {
   ros::init(argc, argv, "bw_ros_driver");
-  ros::NodeHandle nh;        // 全局命名空间（便于发布到全局话题）
-  ros::NodeHandle pnh("~");  // 私有参数
+  ros::NodeHandle nh;        
+  ros::NodeHandle pnh("~");  
 
+  //setup parameters
   std::string port = "/dev/ttyUSB0", frame_id = "imu_link", topic = "/imu/data";
-  std::string mag_unit = "gauss";  // gauss | uT | tesla
+  std::string mag_unit = "gauss";  
   std::string protocol = "auto";
   int baud = 115200;
   bool debug = true;
-  double ori_cov = -1.0, gyr_cov = -1.0, acc_cov = -1.0;  // -1 表示未知
+  double ori_cov = -1.0, gyr_cov = -1.0, acc_cov = -1.0;  
   pnh.param("port", port, port);
   pnh.param("baud", baud, baud);
   pnh.param("frame_id", frame_id, frame_id);
@@ -42,20 +43,20 @@ int main(int argc, char** argv)
   pnh.param("cov_linear_acceleration", acc_cov, acc_cov);
   pnh.param("protocol", protocol, protocol);
 
+  // open serial port
   bw::SerialPort serial_port(port, baud);
   if (!serial_port.openSerial()) 
   {
     ROS_ERROR("Open %s failed", port.c_str());
     return 1;
   }
-
   ROS_INFO("Opened %s @ %d, publishing %s", port.c_str(), baud, topic.c_str());
 
+  // publishers ： IMU & Mag
   ros::Publisher pub = nh.advertise<sensor_msgs::Imu>(topic, 200);
   ros::Publisher mag_pub =
       nh.advertise<sensor_msgs::MagneticField>("/imu/mag", 200);
 
-  
   const double DEG2RAD = M_PI / 180.0;
   const double G2MS2 = 9.80665;
   
@@ -72,7 +73,7 @@ int main(int argc, char** argv)
 
   while (ros::ok()) 
   {
-    uint8_t tmp[512];
+    uint8_t tmp[1024];
     ssize_t n = serial_port.readSome(tmp, sizeof(tmp));
     if (n < 0 && errno != EAGAIN)
     {
@@ -85,16 +86,15 @@ int main(int argc, char** argv)
       std::vector<bw::DataSample> out;
       out.reserve(8);
       size_t m = parser.feed(tmp, static_cast<size_t>(n), out);
+
       for (size_t i = 0; i < m; ++i) 
       {
         const bw::DataSample & s = out[i];
 
-        //填充ros消息
+        // publish IMU message
         sensor_msgs::Imu imu_msg;
         imu_msg.header.stamp = ros::Time::now();
         imu_msg.header.frame_id = frame_id;
-
-        // 默认协方差
         for (int k = 0; k < 9; ++k)
         {
           imu_msg.orientation_covariance[k] = 0;
@@ -104,8 +104,6 @@ int main(int argc, char** argv)
         imu_msg.orientation_covariance[0] = ori_cov;
         imu_msg.angular_velocity_covariance[0] = gyr_cov;
         imu_msg.linear_acceleration_covariance[0] = acc_cov;
-
-        // 四元数
         if (s.has_quat) 
         {
           imu_msg.orientation.w = s.q0;
@@ -125,7 +123,7 @@ int main(int argc, char** argv)
           imu_msg.orientation_covariance[0] = -1;
         }
 
-        // 角速度（rad/s）
+        // publish angular velocity (rad/s)
         if (s.has_gyro)
         {
           imu_msg.angular_velocity.x = s.gx_dps * DEG2RAD;
@@ -137,7 +135,7 @@ int main(int argc, char** argv)
           imu_msg.angular_velocity_covariance[0] = -1;
         }
 
-        // 加速度（m/s^2）
+        // publish linear acceleration (m/s^2)
         if (s.has_acc) 
         {
           imu_msg.linear_acceleration.x = s.ax_g * G2MS2;
@@ -150,10 +148,10 @@ int main(int argc, char** argv)
 
         pub.publish(imu_msg);
 
-        // 发布磁场（单位转 Tesla）
+        // publish mag if available
         if (s.has_mag)
         {
-          double scale = 1.0;  // Tesla
+          double scale = 1.0; 
           if (mag_unit == "gauss")
             scale = 1e-4;
           else if (mag_unit == "uT" || mag_unit == "ut")
@@ -178,7 +176,7 @@ int main(int argc, char** argv)
       const double now = ros::Time::now().toSec();
       const double dt_print = now - last_print;
 
-      // 每 ~1s 打印一次速率与完整数据
+      // print every 1 second
       if (dt_print >= 1.0) 
       {
         const double dt = (ros::Time::now() - t0).toSec();
@@ -188,8 +186,7 @@ int main(int argc, char** argv)
 
         if (last_dbg_valid) 
         {
-          // 打印最近一帧的所有可用字段（单位与上面一致：角速度 deg/s、加速度
-          // g、磁场原始单位、姿态四元数）
+          // print last received data
           ROS_INFO(
               "AUTO BCD52 %.1f Hz  "
               "P=%+.2f R=%+.2f Y=%+.2f  "
