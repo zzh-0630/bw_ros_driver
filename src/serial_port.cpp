@@ -10,10 +10,6 @@
 
 using bw::SerialPort;
 
-/*!
- * 串口管理类
- */
-
 SerialPort::SerialPort(std::string port, int baud):
   port_(std::move(port)), baud_(baud), fd_(-1) {}
 
@@ -77,7 +73,7 @@ speed_t SerialPort::mapBaud(int baud)
       return B3000000;
 #endif
     default:
-      return B9600;  // 未覆盖到就退回低速，避免崩
+      return B9600;  
   }
 }
 
@@ -90,22 +86,33 @@ bool SerialPort::configureTermios()
     return false;
   }
 
+  // Put the port into "raw" mode (no line discipline / processing).
   cfmakeraw(&tio);
+
+  // Set baud rate
   speed_t sp = mapBaud(baud_);
   cfsetispeed(&tio, sp);
   cfsetospeed(&tio, sp);
 
+  // 8 data bits, no parity, 1 stop bit, enable receiver, ignore modem control.
   tio.c_cflag |= (CLOCAL | CREAD | CS8);
-  tio.c_cflag &= ~(PARENB | CSTOPB | CRTSCTS);  // 8N1
-  tio.c_iflag &= ~(IXON | IXOFF | IXANY);       // no flow control
-  tio.c_cc[VMIN] = 0;                           // read non-blocking
-  tio.c_cc[VTIME] = 2;                          // 200ms timeout
+  tio.c_cflag &= ~(PARENB | CSTOPB | CRTSCTS);  
+  tio.c_iflag &= ~(IXON | IXOFF | IXANY);
 
+  // Make read() return immediately with whatever is available:
+  // - VMIN = 0: return as soon as any data is available.
+  // - VTIME = 2: timeout of 0.2 seconds (units are 1/10 s).
+  tio.c_cc[VMIN] = 0;                          
+  tio.c_cc[VTIME] = 2;                         
+
+  // Apply the settings immediately.
   if (tcsetattr(fd_, TCSANOW, &tio) != 0) 
   {
     std::perror("tcsetattr");
     return false;
   }
+
+  // Flush any data received but not read, and data written but not transmitted.
   tcflush(fd_, TCIOFLUSH);
   return true;
 }
@@ -113,6 +120,9 @@ bool SerialPort::configureTermios()
 bool SerialPort::openSerial()
 {
   closeSerial();
+
+  // O_NOCTTY: do not make this device the controlling terminal.
+  // O_NONBLOCK: open in non-blocking mode to avoid blocking on device.
   fd_ = ::open(port_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
   if (fd_ < 0)
   {
