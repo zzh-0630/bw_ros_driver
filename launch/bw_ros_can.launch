@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="bw_ros_driver" type="bw_node_can" name="bw_node_can" output="screen">
+    <rosparam command="load" file="$(find bw_ros_driver)/config/can_params.yaml"/>
+  </node>
+</launch>
