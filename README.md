@@ -1,9 +1,20 @@
+北微ROS驱动仓库提供了北微产品的ROS驱动程序支持，目前支持ROS1,ROS2双版本，支持串口，CAN双接口，适配北微标准协议（77开头）与Nova协议（F3开头），仓库地址如下：
+
+ROS1：https://github.com/zzh-0630/bw_ros_driver
+
+ROS2：https://github.com/zzh-0630/bw_ros2_driver
+
+！！！注意：
+- 本仓库完全开源，可任意修改使用
+- 本仓库持续开发优化中，不保证完全可靠，若有bug，可及时联系开发人员更新维护
+- ROS官方已经停止了对ROS1的维护，后续开发维护会主要在ROS2基础上进行
 # 1. 功能简介
 
 本ros驱动程序主要实现了以下功能：
 
 - 对北微传感自有产品进行协议解析，目前有两套协议，77开头的标准协议，F3开头的Nova协议，分别对应bw_node_standard节点与bw_node_nova节点
 - 在ROS系统下快速部署北微传感惯性传感器，只需要修改yaml中的参数，就可一键启动
+- 已完成了CAN接口的开发与适配，数据帧共用一个CAN ID
 - 发布ROS标准消息，方便用户订阅并融合到自有算法中
 
 # 2. 使用方法
@@ -74,7 +85,7 @@
 在ros工作空间下输入：
 
 1. `source ./devel/setup.bash`
-2. `roslaunch bw_ros_driver bw_ros_auto.launch`
+2. `roslaunch bw_ros_driver bw_ros_com.launch`
 
 
 ![image5](./assets/README/image5.png)
@@ -84,3 +95,8 @@
 如果想要更直观可以通过rviz显示，在终端中输入`roslaunch bw_ros_driver rviz.launch`：
 
 ![image6](./assets/README/image6.png)
+
+补充：CAN接口启动传感器：
+1. 配置can自动输出，设置好波特率，可在终端candump can0看到数据输出
+2. `source ./devel/setup.bash`
+3. `roslaunch bw_ros_driver bw_ros_can.launch`
